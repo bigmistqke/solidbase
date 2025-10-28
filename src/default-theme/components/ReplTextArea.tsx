@@ -1,8 +1,3 @@
-import "tm-textarea";
-import type {} from "tm-textarea/core";
+import { TmTextarea } from "tm-textarea/solid";
 
-export default function ReplTextArea(
-	props: JSX.IntrinsicElements["tm-textarea"],
-) {
-	return <tm-textarea {...props} />;
-}
+export default TmTextarea;
