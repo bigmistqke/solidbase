@@ -1,13 +1,21 @@
+import { Tabs } from "@kobalte/core";
+import {
+	cookieStorage,
+	makePersisted,
+	messageSync,
+} from "@solid-primitives/storage";
 import { A } from "@solidjs/router";
 import {
+	type Accessor,
 	type ComponentProps,
+	For,
 	type ParentProps,
 	Show,
 	children,
+	createSignal,
 	splitProps,
 } from "solid-js";
-import { ReplBlock } from "./components/ReplBlock";
-import { TabsComponent, TabsWithPersistence } from "./components/TabsComponent";
+import { usePreferredLanguage } from "../client/preferred-language";
 import styles from "./mdx-components.module.css";
 
 export function h1(props: ComponentProps<"h1">) {
@@ -104,41 +112,78 @@ export function DirectiveContainer(
 		codeGroup?: string;
 		tabNames?: string;
 		withTsJsToggle?: string;
-		hasRepl?: string;
-		main?: string;
 	} & ParentProps,
 ) {
 	const _children = children(() => props.children).toArray();
 
 	if (props.type === "tab") {
-		// Return only the code block, not the title
-		// The structure is [title element, code block]
-		return _children[1] || _children;
+		return _children;
 	}
 
 	if (props.type === "tab-group") {
 		const tabNames = props.tabNames?.split("\0");
-		const hasRepl = props.hasRepl === "true";
+		const [preferredLanguage] = usePreferredLanguage();
 
-		const tabsProps = {
-			tabNames,
-			tabChildren: _children,
-			title: props.title,
-			withTsJsToggle: props.withTsJsToggle === "true",
-		};
+		const tabs = (value?: Accessor<string>, onChange?: (s: string) => void) => (
+			<Tabs.Root
+				value={value?.()}
+				onChange={onChange}
+				class={styles["tabs-container"]}
+			>
+				<Tabs.List class={styles["tabs-list"]}>
+					{tabNames?.map((title) => {
+						const jsTitle = title.replace(/\.tsx?$/, (ext) => {
+							if (ext === ".tsx") {
+								return ".jsx";
+							}
+							if (ext === ".ts") {
+								return ".js";
+							}
+							return ext;
+						});
 
-		// If this tab group has REPL tabs, render the REPL instead
-		if (hasRepl) {
-			return <ReplBlock {...tabsProps} main={props.main ?? ""} />;
-		}
+						return (
+							<Tabs.Trigger class={styles["tabs-trigger"]} value={title}>
+								{preferredLanguage() === "ts" ? title : jsTitle}
+							</Tabs.Trigger>
+						);
+					})}
+					{props.withTsJsToggle === "true" && (
+						<input
+							type="checkbox"
+							checked
+							title="Toggle language"
+							aria-label="Toggle TS/JS"
+							class="sb-ts-js-toggle"
+						/>
+					)}
+				</Tabs.List>
 
-		// If no title, use basic TabsComponent without persistence
-		if (!props.title) {
-			return <TabsComponent {...tabsProps} />;
-		}
+				<For each={tabNames}>
+					{(title, i) => (
+						<Tabs.Content
+							value={title}
+							forceMount={true}
+							class={styles["tabs-content"]}
+						>
+							<div>{_children[i()]}</div>
+						</Tabs.Content>
+					)}
+				</For>
+			</Tabs.Root>
+		);
 
-		// Otherwise use TabsWithPersistence
-		return <TabsWithPersistence {...tabsProps} />;
+		if (!props.title) return tabs();
+
+		const [openTab, setOpenTab] = makePersisted(createSignal(tabNames![0]!), {
+			name: `tab-group:${props.title}`,
+			sync: messageSync(new BroadcastChannel("tab-group")),
+			storage: cookieStorage.withOptions({
+				expires: new Date(+new Date() + 3e10),
+			}),
+		});
+
+		return tabs(openTab, setOpenTab);
 	}
 
 	if (props.type === "details") {
