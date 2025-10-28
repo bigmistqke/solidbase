@@ -89,6 +89,21 @@ export default defineConfig(
 									title: "Frontmatter",
 									link: "/frontmatter",
 								},
+								{
+									title: "Interactive REPL",
+									link: "/repl",
+									status: "new",
+								},
+								{
+									title: "REPL Simple Test",
+									link: "/repl-simple",
+									status: "new",
+								},
+								{
+									title: "Normal Tab Test",
+									link: "/repl-test-normal",
+									status: "new",
+								},
 							],
 						},
 						{

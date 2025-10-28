@@ -566,6 +566,119 @@ export default function App() {
 }
 ```
 
+### Interactive REPL
+
+You can create interactive code examples that allow users to run and modify code directly in the browser by adding the `repl` attribute to your code tabs. This is perfect for creating live demos, tutorials, and interactive documentation.
+
+**Input**
+
+````md
+```js tab repl title="main.js"
+import { helper } from './utils.js';
+
+console.log("Hello from main!");
+helper();
+
+const result = calculateSum(5, 3);
+console.log(`Sum: ${result}`);
+```
+
+```js tab repl title="utils.js"
+export function helper() {
+  console.log("Helper function called!");
+}
+
+export function calculateSum(a, b) {
+  return a + b;
+}
+```
+
+```css tab repl title="styles.css"
+body {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  font-family: 'Arial', sans-serif;
+  padding: 20px;
+}
+```
+````
+
+**Output**
+
+```js tab repl title="main.js"
+import { helper } from './utils.js';
+
+console.log("Hello from main!");
+helper();
+
+const result = calculateSum(5, 3);
+console.log(`Sum: ${result}`);
+```
+
+```js tab repl title="utils.js"
+export function helper() {
+  console.log("Helper function called!");
+}
+
+export function calculateSum(a, b) {
+  return a + b;
+}
+```
+
+```css tab repl title="styles.css"
+body {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  font-family: 'Arial', sans-serif;
+  padding: 20px;
+}
+```
+
+#### Features
+
+- **Multi-file Support**: Include multiple JavaScript, CSS, and HTML files in a single REPL
+- **Live Editing**: Modify code and see results instantly
+- **Console Output**: View console.log and error messages in real-time
+- **File Switching**: Switch between different files using the file tabs
+- **Module System**: Use ES6 imports/exports between files
+- **Error Handling**: Displays runtime errors with proper formatting
+
+#### Single File Example
+
+You can also create a simple single-file REPL:
+
+**Input**
+
+````md
+```js tab repl title="demo.js"
+// Try modifying this code!
+const greeting = "Hello, World!";
+console.log(greeting);
+
+const numbers = [1, 2, 3, 4, 5];
+const doubled = numbers.map(n => n * 2);
+console.log("Original:", numbers);
+console.log("Doubled:", doubled);
+
+// Interactive DOM manipulation
+document.body.innerHTML += '<h1 style="color: purple;">Live Demo!</h1>';
+```
+````
+
+**Output**
+
+```js tab repl title="demo.js"
+// Try modifying this code!
+const greeting = "Hello, World!";
+console.log(greeting);
+
+const numbers = [1, 2, 3, 4, 5];
+const doubled = numbers.map(n => n * 2);
+console.log("Original:", numbers);
+console.log("Doubled:", doubled);
+
+// Interactive DOM manipulation
+document.body.innerHTML += '<h1 style="color: purple;">Live Demo!</h1>';
+```
+
 ### Twoslash
 
 // TODO

@@ -1,0 +1,21 @@
+---
+title: Simple REPL Test
+---
+
+# Simple REPL Test
+
+This is a minimal test of the REPL functionality.
+
+```js tab repl title="./test.js" main="./test.js"
+import {sum} from "./math.js";
+import confetti from "canvas-confetti"
+
+document.body.append(sum(1, 2))
+setTimeout(confetti, 1000);
+```
+
+```js tab repl title="./math.js"
+export function sum(a,b){
+  return a + b;
+}
+```
