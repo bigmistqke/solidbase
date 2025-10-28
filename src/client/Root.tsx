@@ -1,7 +1,7 @@
-import { Layout, mdxComponents } from "virtual:solidbase/components";
 import { Meta, MetaProvider, Title } from "@solidjs/meta";
 import { type ParentProps, Suspense, createMemo, onMount } from "solid-js";
 import { MDXProvider } from "solid-mdx";
+import { Layout, mdxComponents } from "virtual:solidbase/components";
 
 import { useRouteSolidBaseConfig } from "./config";
 import { SolidBaseContext } from "./context";

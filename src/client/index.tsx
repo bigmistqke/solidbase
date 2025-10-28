@@ -1,28 +1,30 @@
-export {
-	getTheme,
-	setTheme,
-	getThemeVariant,
-	useThemeListener,
-	type ThemeType,
-} from "./theme";
+export { useRouteSolidBaseConfig } from "./config";
+export { useSolidBaseContext } from "./context";
 export {
 	getLocale,
-	useLocale,
 	getLocaleLink,
+	useLocale,
 	type ResolvedLocale,
 } from "./locale";
-export { usePreferredLanguage } from "./preferred-language";
-export { SolidBaseRoot } from "./Root";
 export {
 	useCurrentPageData,
 	useFrontmatter,
 	type BaseFrontmatter,
 	type TableOfContentsItemData,
 } from "./page-data";
-export { useSolidBaseContext } from "./context";
-export { useRouteSolidBaseConfig } from "./config";
+export { usePreferredLanguage } from "./preferred-language";
+export { SolidBaseRoot } from "./Root";
+export {
+	getTheme,
+	getThemeVariant,
+	setTheme,
+	useThemeListener,
+	type ThemeType,
+} from "./theme";
 
-export { SidebarProvider, useSidebar, usePrevNext } from "./sidebar";
 export type * from "./sidebar";
+export { SidebarProvider, usePrevNext, useSidebar } from "./sidebar";
+
+export { ReplProvider } from "../default-theme/components/ReplBlock";
 
 export { mdxComponents } from "virtual:solidbase/components";

@@ -4,11 +4,7 @@ import {
 	makePersisted,
 	messageSync,
 } from "@solid-primitives/storage";
-import {
-	type Accessor,
-	For,
-	createSignal,
-} from "solid-js";
+import { type Accessor, For, type JSXElement, createSignal } from "solid-js";
 import { usePreferredLanguage } from "../../client/preferred-language";
 import styles from "../mdx-components.module.css";
 
@@ -19,6 +15,7 @@ export interface TabsComponentProps {
 	withTsJsToggle?: boolean;
 	value?: Accessor<string>;
 	onChange?: (s: string) => void;
+	children?: (tab: Accessor<any>, tabName: string) => JSXElement;
 }
 
 export function TabsComponent(props: TabsComponentProps) {
@@ -66,7 +63,10 @@ export function TabsComponent(props: TabsComponentProps) {
 						forceMount={true}
 						class={styles["tabs-content"]}
 					>
-						<div>{props.tabChildren[i()]}</div>
+						<div>
+							{props.children?.(() => props.tabChildren[i()], title) ??
+								props.tabChildren[i()]}
+						</div>
 					</Tabs.Content>
 				)}
 			</For>
@@ -74,18 +74,23 @@ export function TabsComponent(props: TabsComponentProps) {
 	);
 }
 
-export function TabsWithPersistence(props: Omit<TabsComponentProps, 'value' | 'onChange'>) {
+export function TabsWithPersistence(
+	props: Omit<TabsComponentProps, "value" | "onChange">,
+) {
 	if (!props.title || !props.tabNames?.length) {
 		return <TabsComponent {...props} />;
 	}
 
-	const [openTab, setOpenTab] = makePersisted(createSignal(props.tabNames[0]!), {
-		name: `tab-group:${props.title}`,
-		sync: messageSync(new BroadcastChannel("tab-group")),
-		storage: cookieStorage.withOptions({
-			expires: new Date(+new Date() + 3e10),
-		}),
-	});
+	const [openTab, setOpenTab] = makePersisted(
+		createSignal(props.tabNames[0]!),
+		{
+			name: `tab-group:${props.title}`,
+			sync: messageSync(new BroadcastChannel("tab-group")),
+			storage: cookieStorage.withOptions({
+				expires: new Date(+new Date() + 3e10),
+			}),
+		},
+	);
 
 	return <TabsComponent {...props} value={openTab} onChange={setOpenTab} />;
 }

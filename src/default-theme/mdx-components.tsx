@@ -6,7 +6,7 @@ import {
 	children,
 	splitProps,
 } from "solid-js";
-import { ReplWrapper } from "./components/ReplWrapper";
+import { ReplBlock } from "./components/ReplBlock";
 import { TabsComponent, TabsWithPersistence } from "./components/TabsComponent";
 import styles from "./mdx-components.module.css";
 
@@ -129,7 +129,7 @@ export function DirectiveContainer(
 
 		// If this tab group has REPL tabs, render the REPL instead
 		if (hasRepl) {
-			return <ReplWrapper {...tabsProps} main={props.main ?? ""} />;
+			return <ReplBlock {...tabsProps} main={props.main ?? ""} />;
 		}
 
 		// If no title, use basic TabsComponent without persistence
