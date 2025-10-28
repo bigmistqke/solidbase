@@ -26,8 +26,6 @@ export function remarkDirectiveContainers() {
 					}
 				}
 
-        console.log('node', node)
-
 				const attributes = node.attributes || {};
 				attributes.type = node.name;
 				attributes.title ??= labelText;
