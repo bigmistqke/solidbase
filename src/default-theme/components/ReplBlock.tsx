@@ -8,7 +8,6 @@ import {
 import { clientOnly } from "@solidjs/start";
 import {
 	type ParentProps,
-	Show,
 	Suspense,
 	children,
 	createContext,
@@ -18,60 +17,51 @@ import {
 	useContext,
 } from "solid-js";
 import { createStore } from "solid-js/store";
+import { render } from "solid-js/web";
 import ts from "typescript";
-import { usePreferredLanguage } from "../../client";
 import styles from "../mdx-components.module.css";
-import { TabsComponent, type TabsComponentProps } from "./TabsComponent";
 
-export interface ReplWrapperProps extends ParentProps<TabsComponentProps> {
+export interface ReplWrapperProps extends ParentProps {
 	main: string;
 }
 
-const ReplTextArea = clientOnly(() => import("./ReplTextArea"));
+const TmTextarea = clientOnly(() => import("./ReplTextArea"));
 
-function getTabPropsFromChildren(container: any) {
-	if (!globalThis.HTMLElement) return { tabPanels: [], tabNames: [] };
+const isHTMLElement = (value: any): value is HTMLElement =>
+	globalThis.HTMLElement && value instanceof globalThis.HTMLElement;
 
-	const tabpanels = Array.from(
-		container.querySelectorAll("[role='tabpanel']") ?? [],
-	);
-	const tabs = Array.from(container.querySelectorAll("[role='tab']") ?? []);
+function extractContentFromHTML(container: HTMLElement) {
+	const frames = container.querySelectorAll(".frame") ?? [];
+	const tabs = container.querySelectorAll("[role='tab']") ?? [];
+	const tabNames = Array.from(tabs).map((tab) => tab.textContent);
 
 	return {
-		tabNames: tabs.map((tab) => tab.textContent),
-		tabChildren: tabs.map((tab) => tab.textContent),
-	};
-}
+		frames,
+		tabNames,
+		content: Object.fromEntries(
+			Array.from(frames).map((frame, index) => {
+				const name = tabNames[index];
 
-function getContentFromChildren(container: any) {
-	if (!globalThis.HTMLElement) return {};
+				if (!isHTMLElement(frame)) {
+					return [name, ""];
+				}
+				const lines = frame.querySelectorAll(".ec-line");
 
-	const tabpanels = container.querySelectorAll("[role='tabpanel']") ?? [];
-	const tabs = container.querySelectorAll("[role='tab']") ?? [];
+				if (!lines) {
+					return [name, ""];
+				}
 
-	return Object.fromEntries(
-		Array.from(tabpanels).map((tabpanel, index) => {
-			const name = tabs[index]!.textContent;
-
-			if (tabpanel instanceof globalThis.HTMLElement) {
 				return [
 					name,
-					Array.from(
-						tabpanel.querySelector(".frame")?.querySelectorAll(".ec-line") ??
-							[],
-					).reduce(
+					Array.from(lines).reduce(
 						(acc, line) =>
-							`${acc}\n${
-								line instanceof globalThis.HTMLElement ? line.textContent : ""
-							}`,
+							`${acc}\n${isHTMLElement(line) ? line.textContent : ""}`,
 						"",
 					),
 				] as const;
-			}
-
-			return [name, ""] as const;
-		}),
-	);
+			}),
+		),
+	};
 }
 
 export function ReplBlock(props: ReplWrapperProps) {
@@ -81,16 +71,41 @@ export function ReplBlock(props: ReplWrapperProps) {
 
 	const [virtualFs, setVirtualFs] = createStore<Record<string, string>>({});
 
-	const [preferredLanguage] = usePreferredLanguage();
-
-	const [isMount, setIsMount] = createSignal(false);
-
 	onMount(() => {
-		const content = getContentFromChildren(c());
+		const container = c();
+
+		if (!isHTMLElement(container)) {
+			console.error(
+				"Expected children of ReplBlock to be a HTMLElement, but received:",
+				container,
+			);
+			return;
+		}
+
+		const { content, frames, tabNames } = extractContentFromHTML(container);
+
 		setVirtualFs(content);
 
-		setTimeout(() => setIsMount(true), 1000);
-		//setIsMount(true);
+		if (globalThis.HTMLElement && container instanceof globalThis.HTMLElement) {
+			return;
+			frames.forEach((element, index) => {
+				render(
+					() => (
+						<Suspense>
+							<TmTextarea
+								value={virtualFs[tabNames[index]]}
+								onInput={({ currentTarget: { value } }) =>
+									setVirtualFs(tabNames[index], value)
+								}
+								grammar="tsx"
+								theme="andromeeda"
+							/>
+						</Suspense>
+					),
+					element,
+				);
+			});
+		}
 	});
 
 	const fileUrls = createClientOnlyMemo(() =>
@@ -123,37 +138,27 @@ export function ReplBlock(props: ReplWrapperProps) {
 		}),
 	);
 
+	const currentFileUrl = () => {
+		const fileUrl = fileUrls()?.get(props.main);
+
+		if (!fileUrl) return undefined;
+
+		if (props.main.endsWith("html")) {
+			return fileUrl;
+		}
+
+		return createFileUrl(
+			`<script type="module" src="${fileUrl}"></script>`,
+			"html",
+		);
+	};
+
 	return (
 		<div class={styles["repl-wrapper"]}>
-			<Show
-				when={!isMount()}
-				fallback={
-					<TabsComponent
-						tabChildren={Object.values(virtualFs)}
-						tabNames={Object.keys(virtualFs)}
-					>
-						{(tab, title) => (
-							<Suspense>
-								<tm-textarea
-									value={tab()}
-									onInput={(event) => {
-										setVirtualFs(title, event.currentTarget.value);
-									}}
-								/>
-							</Suspense>
-						)}
-					</TabsComponent>
-				}
-			>
-				{c()}
-			</Show>
-			{/* REPL iframe on the right */}
+			{c()}
 			<div class={styles["repl-iframe-container"]}>
 				<iframe
-					src={createFileUrl(
-						`<script type="module" src="${fileUrls()?.get(props.main)}"></script>`,
-						"html",
-					)}
+					src={currentFileUrl()}
 					class={styles["repl-iframe"]}
 					title="REPL Output"
 				/>
