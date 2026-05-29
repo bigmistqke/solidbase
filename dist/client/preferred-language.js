@@ -1,0 +1,48 @@
+import { useHead } from "@solidjs/meta";
+import { createEffect, createSignal, createUniqueId, onMount } from "solid-js";
+import { getRequestEvent, isServer } from "solid-js/web";
+import readPreferredLanguageCookieScript from "./read-preferred-language-cookie.js?raw";
+const COOKIE_NAME = "preferred-language";
+const DEFAULT_LANGUAGE = "ts";
+function getCookie(cookieString) {
+    if (!cookieString) {
+        return DEFAULT_LANGUAGE;
+    }
+    const match = cookieString.match(new RegExp(`\\W?${COOKIE_NAME}=(?<value>\\w+)`));
+    if (match?.groups?.value === undefined) {
+        return DEFAULT_LANGUAGE;
+    }
+    return match.groups.value;
+}
+function getPreferredLanguageCookie() {
+    if (isServer) {
+        const e = getRequestEvent();
+        const cookieString = e.request.headers.get("cookie");
+        return cookieString ? getCookie(cookieString) : DEFAULT_LANGUAGE;
+    }
+    return getCookie(document.cookie);
+}
+const [preferredLanguage, setPreferredLanguage] = createSignal(DEFAULT_LANGUAGE);
+export function usePreferredLanguage() {
+    onMount(() => {
+        setPreferredLanguage(getPreferredLanguageCookie());
+    });
+    createEffect(() => {
+        const preferredLanguageStr = String(preferredLanguage());
+        document.documentElement.setAttribute("data-preferred-language", preferredLanguageStr);
+        // biome-ignore lint/suspicious/noDocumentCookie: remove next major
+        document.cookie = `${COOKIE_NAME}=${preferredLanguageStr}; max-age=31536000; path=/`;
+        const toggles = document.querySelectorAll('input[type="checkbox"].sb-ts-js-toggle');
+        for (const toggle of Array.from(toggles)) {
+            toggle.checked = preferredLanguage() === "ts";
+        }
+    });
+    useHead({
+        tag: "script",
+        id: createUniqueId(),
+        props: { children: readPreferredLanguageCookieScript },
+        setting: { close: true },
+    });
+    return [preferredLanguage, setPreferredLanguage];
+}
+//# sourceMappingURL=preferred-language.js.map

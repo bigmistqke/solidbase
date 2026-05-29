@@ -1,0 +1,177 @@
+import { Collapsible } from "@kobalte/core/collapsible";
+// @refresh reload
+import { Dialog } from "@kobalte/core/dialog";
+import { Title } from "@solidjs/meta";
+import { A } from "@solidjs/router";
+import { createEffect, For, Match, onCleanup, onMount, Show, Switch, } from "solid-js";
+import { Dynamic } from "solid-js/web";
+import { useLocale, useThemeListener } from "../client/index.js";
+import { usePreferredLanguage } from "../client/preferred-language.js";
+import { SidebarProvider, useSidebar, } from "../client/sidebar.js";
+import { DefaultThemeComponentsProvider, DefaultThemeStateProvider, useDefaultThemeComponents, useDefaultThemeState, } from "./context.jsx";
+import { defaultThemeComponents } from "./default-components.js";
+import { mobileLayout } from "./globals.js";
+import { usePace } from "./pace.js";
+import { useRouteConfig } from "./utils.js";
+import "virtual:solidbase/default-theme/fonts.css";
+import styles from "./Layout.module.css";
+import "./index.css";
+import IconArrowDownLine from "~icons/ri/arrow-down-s-line";
+export default (props) => {
+    const config = useRouteConfig();
+    return (<DefaultThemeStateProvider>
+			<DefaultThemeComponentsProvider components={defaultThemeComponents}>
+				<SidebarProvider config={config().themeConfig?.sidebar}>
+					<Layout>{props.children}</Layout>
+				</SidebarProvider>
+			</DefaultThemeComponentsProvider>
+		</DefaultThemeStateProvider>);
+};
+function Layout(props) {
+    const { Header, Article, Link, ProjectSelector } = useDefaultThemeComponents();
+    const { sidebarOpen, setSidebarOpen, frontmatter } = useDefaultThemeState();
+    const config = useRouteConfig();
+    const sidebar = useSidebar();
+    useThemeListener();
+    usePace();
+    const [preferredLanguage, setPreferredLanguage] = usePreferredLanguage();
+    onMount(() => {
+        const toggles = document.querySelectorAll('input[type="checkbox"].sb-ts-js-toggle');
+        for (const toggle of Array.from(toggles)) {
+            toggle.checked = preferredLanguage() === "ts";
+            function handleToggle() {
+                setPreferredLanguage(toggle.checked ? "ts" : "js");
+            }
+            toggle.addEventListener("click", handleToggle);
+            onCleanup(() => {
+                toggle.removeEventListener("click", handleToggle);
+            });
+        }
+    });
+    createEffect(() => {
+        const toggles = document.querySelectorAll('input[type="checkbox"].sb-ts-js-toggle');
+        for (const toggle of Array.from(toggles)) {
+            toggle.checked = preferredLanguage() === "ts";
+        }
+    });
+    return (<>
+			<Title>{config().title}</Title>
+
+			<div class={styles.skipnav}>
+				<Link href="#main-content" onClick={() => {
+            document
+                .getElementById("main-content")
+                ?.querySelector("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")?.focus();
+        }}>
+					Skip to main content
+				</Link>
+			</div>
+
+			<div class={styles.layout}>
+				<Header />
+
+				<Show when={(() => {
+            const s = sidebar();
+            if (!s || s.items.length <= 0 || frontmatter()?.sidebar === false)
+                return;
+            return s;
+        })()} fallback={<div class="_e"/>}>
+					{(sidebar) => (<Show when={mobileLayout()} fallback={<aside class={styles.sidenav}>
+									<div class={styles["sidenav-content"]}>
+										<ProjectSelector />
+										<Navigation sidebar={sidebar()}/>
+									</div>
+								</aside>}>
+							<Dialog open={sidebarOpen()} onOpenChange={setSidebarOpen}>
+								<Dialog.Portal>
+									<Dialog.Overlay class={styles["sidenav-overlay"]}/>
+									<Dialog.Content class={styles.sidenav}>
+										<div class={styles["sidenav-content"]}>
+											<div class={styles["sidenav-header"]}>
+												<a href="/" class={styles["logo-link"]}>
+													<Show when={config().logo} fallback={<span>{config().title}</span>}>
+														<img src={config().logo} alt={config().title}/>
+													</Show>
+												</a>
+											</div>
+											<ProjectSelector />
+											<Navigation sidebar={sidebar()}/>
+										</div>
+									</Dialog.Content>
+								</Dialog.Portal>
+							</Dialog>
+						</Show>)}
+				</Show>
+
+				<main id="main-content">
+					<Article>{props.children}</Article>
+				</main>
+			</div>
+		</>);
+}
+function Navigation(props) {
+    return (<nav class={styles["sidenav-links"]}>
+			<ul>
+				<For each={props.sidebar.items}>
+					{(item) => (<NavigationItem prefix={props.sidebar.prefix} item={item}/>)}
+				</For>
+			</ul>
+		</nav>);
+}
+function NavigationItem(props) {
+    const locale = useLocale();
+    const { setSidebarOpen } = useDefaultThemeState();
+    return (<Switch>
+			<Match when={"link" in props.item &&
+            props.item}>
+				{(item) => {
+            const link = () => item().link;
+            const prefix = () => props.prefix;
+            return (<li>
+							<A class={`${styles["sidenav-link"]}`} activeClass={styles.active} href={locale.applyPathPrefix(`${prefix() === "/" ? "" : prefix()}${link() === "/" ? "" : link()}`)} end onClick={() => setSidebarOpen(false)}>
+								<span>{item().title}</span>
+								<Switch>
+									<Match when={item().status === "new"}>
+										<span class={styles["status-new"]}>New</span>
+									</Match>
+									<Match when={item().status === "updated"}>
+										<span class={styles["status-updated"]}>Updated</span>
+									</Match>
+									<Match when={item().status === "next"}>
+										<span class={styles["status-next"]}>Next</span>
+									</Match>
+									<Match when={typeof item().status === "object" &&
+                    item()
+                        .status}>
+										{(status) => (<span class={styles["status-custom"]} style={`--fg: ${status().textColor ?? "white"}; --bg: ${status().color}`}>
+												{status().text}
+											</span>)}
+									</Match>
+								</Switch>
+							</A>
+						</li>);
+        }}
+			</Match>
+
+			<Match when={"items" in props.item &&
+            props.item}>
+				{(section) => {
+            return (<Collapsible as="li" defaultOpen={!section().collapsed}>
+							<Collapsible.Trigger class={styles["section-trigger"]} aria-label="Toggle list view">
+								<Dynamic component={`h${(props.depth ?? 0) + 2}`}>
+									{section().title}
+								</Dynamic>
+								<IconArrowDownLine />
+							</Collapsible.Trigger>
+
+							<Collapsible.Content as="ul" class={styles["section-content"]}>
+								<For each={section().items}>
+									{(item) => (<NavigationItem prefix={props.prefix + (section().base ?? "")} item={item} depth={(props.depth ?? 0) + 1}/>)}
+								</For>
+							</Collapsible.Content>
+						</Collapsible>);
+        }}
+			</Match>
+		</Switch>);
+}
+//# sourceMappingURL=Layout.jsx.map

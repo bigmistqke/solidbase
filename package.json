@@ -35,44 +35,44 @@
   },
   "exports": {
     "./client": {
-      "solid": "./src/client/index.tsx",
-      "import": "./src/client/index.tsx",
-      "types": "./src/client/index.tsx"
+      "solid": "./dist/client/index.jsx",
+      "import": "./dist/client/index.jsx",
+      "types": "./dist/client/index.d.ts"
     },
     "./config": {
-      "solid": "./src/config/index.ts",
-      "import": "./src/config/index.ts",
-      "types": "./src/config/index.ts"
+      "solid": "./dist/config/index.js",
+      "import": "./dist/config/index.js",
+      "types": "./dist/config/index.d.ts"
     },
     "./config/sidebar": {
-      "solid": "./src/config/sidebar.ts",
-      "import": "./src/config/sidebar.ts",
-      "types": "./src/config/sidebar.ts"
+      "solid": "./dist/config/sidebar.js",
+      "import": "./dist/config/sidebar.js",
+      "types": "./dist/config/sidebar.d.ts"
     },
     "./config/route": {
-      "solid": "./src/config/route-config.ts",
-      "import": "./src/config/route-config.ts",
-      "types": "./src/config/route-config.ts"
+      "solid": "./src/config/route-config.js",
+      "import": "./src/config/route-config.js",
+      "types": "./src/config/route-config.d.ts"
     },
     "./server": {
-      "solid": "./src/server.tsx",
-      "import": "./src/server.tsx",
-      "types": "./src/server.tsx"
+      "solid": "./dist/server.jsx",
+      "import": "./dist/server.jsx",
+      "types": "./dist/server.d.ts"
     },
     "./default-theme": {
-      "solid": "./src/default-theme/index.ts",
-      "import": "./src/default-theme/index.ts",
-      "types": "./src/default-theme/index.ts"
+      "solid": "./dist/default-theme/index.js",
+      "import": "./dist/default-theme/index.js",
+      "types": "./dist/default-theme/index.d.ts"
     },
     "./default-theme/*": {
-      "solid": "./src/default-theme/*",
-      "import": "./src/default-theme/*",
-      "types": "./src/default-theme/*"
+      "solid": "./dist/default-theme/*",
+      "import": "./dist/default-theme/*",
+      "types": "./dist/default-theme/*"
     },
     "./mdx": {
-      "solid": "./src/mdx.ts",
-      "import": "./src/mdx.ts",
-      "types": "./src/mdx.ts"
+      "solid": "./dist/mdx.js",
+      "import": "./dist/mdx.js",
+      "types": "./dist/mdx.d.ts"
     }
   },
   "publishConfig": {

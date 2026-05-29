@@ -1,0 +1,3 @@
+.last-updated {
+	color: color-mix(in hsl, var(--sb-text-color) 72.5%, transparent);
+}
