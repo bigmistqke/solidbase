@@ -2,9 +2,9 @@ import { Tabs } from "@kobalte/core";
 import { cookieStorage, makePersisted, messageSync, } from "@solid-primitives/storage";
 import { children, createSignal, For, Show, splitProps, } from "solid-js";
 import { usePreferredLanguage } from "../client/preferred-language.js";
-import CopyPageLink from "../default-theme/components/CopyPageLink.js";
-import { Preview, PreviewPanel, PreviewStage } from "./components/Preview.js";
-import { useDefaultThemeComponents } from "./context.js";
+import CopyPageLink from "../default-theme/components/CopyPageLink.jsx";
+import { Preview, PreviewPanel, PreviewStage } from "./components/Preview.jsx";
+import { useDefaultThemeComponents } from "./context.jsx";
 import { useDefaultThemeFrontmatter } from "./frontmatter.js";
 import styles from "./mdx-components.module.css";
 export function h1(props) {

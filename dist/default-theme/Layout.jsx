@@ -5,7 +5,7 @@ import { Title } from "@solidjs/meta";
 import { A } from "@solidjs/router";
 import { createEffect, For, Match, onCleanup, onMount, Show, Switch, } from "solid-js";
 import { Dynamic } from "solid-js/web";
-import { useLocale, useThemeListener } from "../client/index.js";
+import { useLocale, useThemeListener } from "../client/index.jsx";
 import { usePreferredLanguage } from "../client/preferred-language.js";
 import { SidebarProvider, useSidebar, } from "../client/sidebar.js";
 import { DefaultThemeComponentsProvider, DefaultThemeStateProvider, useDefaultThemeComponents, useDefaultThemeState, } from "./context.jsx";

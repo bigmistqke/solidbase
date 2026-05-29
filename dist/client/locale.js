@@ -180,7 +180,7 @@ const [LocaleContextProvider, useLocaleContext] = createContextProvider(() => {
             const rest = match()?.params.rest;
             if (!rest)
                 return "/";
-            return `/${rest}`;
+            return stripBasePath(`/${rest}`);
         },
     };
 });
