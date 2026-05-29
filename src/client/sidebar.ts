@@ -7,7 +7,7 @@ import type {
 	SidebarItem,
 	SidebarItemLink,
 } from "../config/sidebar.js";
-import { useLocale } from "./locale.js";
+import { stripBasePath, useLocale } from "./locale.js";
 
 export type * from "../config/sidebar.js";
 
@@ -121,7 +121,7 @@ export function usePrevNext<T = {}>() {
 		if (!s) return -1;
 
 		return links().findIndex(
-			(item) => "link" in item && location.pathname === item.link,
+			(item) => "link" in item && stripBasePath(location.pathname) === item.link,
 		);
 	});
 

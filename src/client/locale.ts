@@ -137,14 +137,29 @@ function isPathWithinPrefix(path: string, prefix: string) {
 	return path === prefix || path.startsWith(`${prefix}/`);
 }
 
+// import.meta.env.BASE_URL is the configured deploy base ("/" by default).
+// Router and location pathnames carry it, but SolidBase matches routes and
+// sidebars against app-relative paths, so strip the base before matching.
+const BASE_PREFIX = import.meta.env.BASE_URL.replace(/\/+$/, "");
+
+export function stripBasePath(pathname: string): string {
+	if (!BASE_PREFIX) return pathname;
+	if (pathname === BASE_PREFIX) return "/";
+	return pathname.startsWith(`${BASE_PREFIX}/`)
+		? pathname.slice(BASE_PREFIX.length)
+		: pathname;
+}
+
 const [LocaleContextProvider, useLocaleContext] = createContextProvider(() => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const routes = useSolidBaseRoutes();
 
-	const currentLocale = createMemo(() => getLocaleForPath(location.pathname));
+	const pathname = createMemo(() => stripBasePath(location.pathname));
+
+	const currentLocale = createMemo(() => getLocaleForPath(pathname()));
 	const currentRouteMatch = createMemo(() =>
-		getSolidBaseRouteMatchForPath(solidBaseConfig.routes, location.pathname),
+		getSolidBaseRouteMatchForPath(solidBaseConfig.routes, pathname()),
 	);
 	const locales = createMemo(() => {
 		if (!solidBaseConfig.routes) return legacyLocales;
@@ -267,9 +282,9 @@ export function getLocale(_path?: string) {
 			const e = getRequestEvent();
 			if (!e) throw new Error("getLang must be called in a request context");
 
-			path = new URL(e.request.url).pathname;
+			path = stripBasePath(new URL(e.request.url).pathname);
 		} else {
-			path = location.pathname;
+			path = stripBasePath(location.pathname);
 		}
 	}
 
