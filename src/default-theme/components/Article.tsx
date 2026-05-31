@@ -1,6 +1,7 @@
 import { WindowEventListener } from "@solid-primitives/event-listener";
 import { createShortcut } from "@solid-primitives/keyboard";
 import { isAppleDevice } from "@solid-primitives/platform";
+import { A } from "@solidjs/router";
 import { createSignal, type ParentProps, Show } from "solid-js";
 
 import { useCurrentPageData } from "../../client/index.jsx";
@@ -119,7 +120,7 @@ export default function Article(props: ParentProps) {
 						<nav class={styles.related}>
 							<div>
 								<Show when={hasPrev()}>
-									<a
+									<A
 										class={styles.prev}
 										href={
 											customLink(frontmatter()?.prev) ??
@@ -129,12 +130,12 @@ export default function Article(props: ParentProps) {
 										<span>Previous</span>
 										{customTitle(frontmatter()?.prev) ??
 											prevNext.prevLink().title}
-									</a>
+									</A>
 								</Show>
 							</div>
 							<div>
 								<Show when={hasNext()}>
-									<a
+									<A
 										class={styles.next}
 										href={
 											customLink(frontmatter()?.next) ??
@@ -144,7 +145,7 @@ export default function Article(props: ParentProps) {
 										<span>Next</span>
 										{customLink(frontmatter()?.next) ??
 											prevNext.nextLink().title}
-									</a>
+									</A>
 								</Show>
 							</div>
 						</nav>
