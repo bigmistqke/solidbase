@@ -1,5 +1,5 @@
 import { Dialog } from "@kobalte/core/dialog";
-import { useMatch } from "@solidjs/router";
+import { A, useMatch } from "@solidjs/router";
 import { createSignal, For, Show } from "solid-js";
 import IconArrowDownLine from "~icons/ri/arrow-down-s-line";
 import IconCloseFill from "~icons/ri/close-large-fill";
@@ -26,11 +26,11 @@ export default function Header() {
     return (<header class={styles.header}>
 			<div>
 				<div class={styles["logo-cluster"]}>
-					<a href={getLocaleLink(locale.currentLocale())} class={styles["logo-link"]}>
+					<A href={getLocaleLink(locale.currentLocale())} class={styles["logo-link"]}>
 						<Show when={config().logo} fallback={<span>{config().title}</span>}>
 							<img src={config().logo} alt={config().title}/>
 						</Show>
-					</a>
+					</A>
 					<div class={styles["version-selector"]}>
 						<VersionSelector />
 					</div>
@@ -48,9 +48,9 @@ export default function Header() {
 									{(nav) => (<For each={nav()}>
 											{(item) => {
                 const match = useMatch(() => locale.applyPathPrefix(`${item.activeMatch ?? item.link}/*rest`));
-                return (<a class={styles.navLink} href={locale.applyPathPrefix(item.link)} data-matched={match() !== undefined ? true : undefined} onClick={() => setNavOpen(false)}>
+                return (<A class={styles.navLink} href={locale.applyPathPrefix(item.link)} data-matched={match() !== undefined ? true : undefined} onClick={() => setNavOpen(false)}>
 														{item.text}
-													</a>);
+													</A>);
             }}
 										</For>)}
 								</Show>
@@ -65,9 +65,9 @@ export default function Header() {
 						{(nav) => (<For each={nav()}>
 								{(item) => {
                 const match = useMatch(() => locale.applyPathPrefix(`${item.activeMatch ?? item.link}/*rest`));
-                return (<a class={styles.navLink} href={locale.applyPathPrefix(item.link)} data-matched={match() !== undefined ? true : undefined}>
+                return (<A class={styles.navLink} href={locale.applyPathPrefix(item.link)} data-matched={match() !== undefined ? true : undefined}>
 											{item.text}
-										</a>);
+										</A>);
             }}
 							</For>)}
 					</Show>

@@ -1,5 +1,5 @@
 import { Dialog } from "@kobalte/core/dialog";
-import { useMatch } from "@solidjs/router";
+import { A, useMatch } from "@solidjs/router";
 import { createSignal, For, Show } from "solid-js";
 
 import IconArrowDownLine from "~icons/ri/arrow-down-s-line";
@@ -51,14 +51,14 @@ export default function Header() {
 		<header class={styles.header}>
 			<div>
 				<div class={styles["logo-cluster"]}>
-					<a
+					<A
 						href={getLocaleLink(locale.currentLocale())}
 						class={styles["logo-link"]}
 					>
 						<Show when={config().logo} fallback={<span>{config().title}</span>}>
 							<img src={config().logo} alt={config().title} />
 						</Show>
-					</a>
+					</A>
 					<div class={styles["version-selector"]}>
 						<VersionSelector />
 					</div>
@@ -87,7 +87,7 @@ export default function Header() {
 												);
 
 												return (
-													<a
+													<A
 														class={styles.navLink}
 														href={locale.applyPathPrefix(item.link)}
 														data-matched={
@@ -96,7 +96,7 @@ export default function Header() {
 														onClick={() => setNavOpen(false)}
 													>
 														{item.text}
-													</a>
+													</A>
 												);
 											}}
 										</For>
@@ -120,13 +120,13 @@ export default function Header() {
 									);
 
 									return (
-										<a
+										<A
 											class={styles.navLink}
 											href={locale.applyPathPrefix(item.link)}
 											data-matched={match() !== undefined ? true : undefined}
 										>
 											{item.text}
-										</a>
+										</A>
 									);
 								}}
 							</For>

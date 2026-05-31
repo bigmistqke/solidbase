@@ -4,6 +4,7 @@ import {
 	makePersisted,
 	messageSync,
 } from "@solid-primitives/storage";
+import { A } from "@solidjs/router";
 import {
 	type Accessor,
 	type ComponentProps,
@@ -61,17 +62,27 @@ export function h6(props: ComponentProps<"h6">) {
 }
 
 export function a(props: ComponentProps<"a"> & { "data-auto-heading"?: "" }) {
-	const outbound = () => (props.href ?? "").includes("//");
+	const href = () => props.href ?? "";
+	const outbound = () => href().includes("//");
+	const internal = () => href().startsWith("/") && !href().startsWith("//");
 	const autoHeading = () => props["data-auto-heading"] === "";
+	const className = () => (autoHeading() ? styles["a-auto"] : styles.a);
 
 	return (
-		<a
-			target={outbound() ? "_blank" : undefined}
-			rel={outbound() ? "noopener noreferrer" : undefined}
-			class={autoHeading() ? styles["a-auto"] : styles.a}
-			href={props.href ?? ""}
-			{...props}
-		/>
+		<Show
+			when={internal()}
+			fallback={
+				<a
+					target={outbound() ? "_blank" : undefined}
+					rel={outbound() ? "noopener noreferrer" : undefined}
+					class={className()}
+					href={href()}
+					{...props}
+				/>
+			}
+		>
+			<A class={className()} {...props} href={href()} />
+		</Show>
 	);
 }
 

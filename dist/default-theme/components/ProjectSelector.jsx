@@ -1,5 +1,6 @@
 import { solidBaseConfig } from "virtual:solidbase/config";
 import { Popover } from "@kobalte/core/popover";
+import { A } from "@solidjs/router";
 import { createMemo, createSignal, For, Show } from "solid-js";
 import IconExpandUpDownLine from "~icons/ri/expand-up-down-line";
 import { useSolidBaseRoute } from "../../client/index.jsx";
@@ -27,9 +28,13 @@ export default function ProjectSelector() {
 							<For each={options()}>
 								{(option) => {
                 const outbound = () => !!option.href;
-                return (<a class={styles.item} target={outbound() ? "_blank" : undefined} rel={outbound() ? "noopener noreferrer" : undefined} aria-current={option === currentOption() || undefined} href={option.href ?? option.path} onMouseEnter={(e) => e.currentTarget.focus()} onClick={() => setOpen(false)}>
-											{getOptionLabel(option)}
-										</a>);
+                return (<Show when={outbound()} fallback={<A class={styles.item} aria-current={option === currentOption() || undefined} href={option.path ?? ""} onMouseEnter={(e) => e.currentTarget.focus()} onClick={() => setOpen(false)}>
+													{getOptionLabel(option)}
+												</A>}>
+											<a class={styles.item} target="_blank" rel="noopener noreferrer" aria-current={option === currentOption() || undefined} href={option.href} onMouseEnter={(e) => e.currentTarget.focus()} onClick={() => setOpen(false)}>
+												{getOptionLabel(option)}
+											</a>
+										</Show>);
             }}
 							</For>
 						</Popover.Content>

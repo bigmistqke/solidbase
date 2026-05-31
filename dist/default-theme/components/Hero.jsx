@@ -1,3 +1,4 @@
+import { A } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useDefaultThemeFrontmatter } from "../frontmatter.js";
 import styles from "./Hero.module.css";
@@ -15,9 +16,17 @@ export default function Hero(props) {
 				<Show when={data().actions}>
 					{(actions) => (<div class={styles.actions}>
 							<For each={actions()}>
-								{(action) => (<a class={`${styles.action} ${action.theme ?? "brand"}`} href={action.link} target={action.link.startsWith("http") ? "_blank" : undefined}>
-										{action.text}
-									</a>)}
+								{(action) => {
+                const outbound = () => !!action.link?.startsWith("http");
+                const className = `${styles.action} ${action.theme ?? "brand"}`;
+                return (<Show when={outbound()} fallback={<A class={className} href={action.link}>
+													{action.text}
+												</A>}>
+											<a class={className} href={action.link} target="_blank" rel="noopener noreferrer">
+												{action.text}
+											</a>
+										</Show>);
+            }}
 							</For>
 						</div>)}
 				</Show>

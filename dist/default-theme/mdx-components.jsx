@@ -1,5 +1,6 @@
 import { Tabs } from "@kobalte/core";
 import { cookieStorage, makePersisted, messageSync, } from "@solid-primitives/storage";
+import { A } from "@solidjs/router";
 import { children, createSignal, For, Show, splitProps, } from "solid-js";
 import { usePreferredLanguage } from "../client/preferred-language.js";
 import CopyPageLink from "../default-theme/components/CopyPageLink.jsx";
@@ -38,9 +39,14 @@ export function h6(props) {
     return <h6 class={styles.h6} {...props}/>;
 }
 export function a(props) {
-    const outbound = () => (props.href ?? "").includes("//");
+    const href = () => props.href ?? "";
+    const outbound = () => href().includes("//");
+    const internal = () => href().startsWith("/") && !href().startsWith("//");
     const autoHeading = () => props["data-auto-heading"] === "";
-    return (<a target={outbound() ? "_blank" : undefined} rel={outbound() ? "noopener noreferrer" : undefined} class={autoHeading() ? styles["a-auto"] : styles.a} href={props.href ?? ""} {...props}/>);
+    const className = () => (autoHeading() ? styles["a-auto"] : styles.a);
+    return (<Show when={internal()} fallback={<a target={outbound() ? "_blank" : undefined} rel={outbound() ? "noopener noreferrer" : undefined} class={className()} href={href()} {...props}/>}>
+			<A class={className()} {...props} href={href()}/>
+		</Show>);
 }
 export function code(props) {
     return <code class={styles.code} {...props}/>;

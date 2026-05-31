@@ -88,11 +88,11 @@ function Layout(props) {
 									<Dialog.Content class={styles.sidenav}>
 										<div class={styles["sidenav-content"]}>
 											<div class={styles["sidenav-header"]}>
-												<a href="/" class={styles["logo-link"]}>
+												<A href="/" class={styles["logo-link"]}>
 													<Show when={config().logo} fallback={<span>{config().title}</span>}>
 														<img src={config().logo} alt={config().title}/>
 													</Show>
-												</a>
+												</A>
 											</div>
 											<ProjectSelector />
 											<Navigation sidebar={sidebar()}/>
